@@ -30,7 +30,7 @@ def interpret_situation(situation_vector, rules_df):
 
 
 def main():
-    rules_file_path = "rules_table.xlsx"  # Путь к файлу с таблицей правил
+    rules_file_path = "rules_table.xlsx"
     rules_df = load_rules_table(rules_file_path)
     if rules_df is not None:
         while True:
@@ -41,7 +41,8 @@ def main():
             if not all(element in ['0', '1'] for element in situation_vector):
                 print("Неверные значения в векторе. Пожалуйста, введите только 0 или 1.")
                 continue
-            situation_vector = ['-' if value == '-' else 'Да' if value == '1' else 'Нет' for value in situation_vector]
+            situation_vector = ['Да' if value == '1' else 'Нет' for value in situation_vector]
+            print(situation_vector)
             decision = interpret_situation(situation_vector, rules_df)
             print("Решение:", decision)
 
