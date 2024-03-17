@@ -36,18 +36,20 @@ def main():
         while True:
             situation_vector = []
             for column in rules_df.columns[1:]:  # Пропускаем первый столбец (Решения)
+                col_name, value_options = column.split('(')
+                value_options = value_options.strip(')').split('/')
                 while True:
-                    value = input(f"{column}: ")
-                    if value not in ['0', '1']:
-                        print("Неверное значение. Пожалуйста, введите только 0 или 1.")
+                    value = input(f"{col_name} ({'/'.join(value_options)}): ")
+                    if value not in value_options:
+                        print(f"Неверное значение. Пожалуйста, введите одно из следующих: {', '.join(value_options)}")
                         continue
                     else:
+                        situation_vector.append('Да' if value == '1' else 'Нет' if value == '0' else value)
                         break  # Выход из цикла запроса значения
-                situation_vector.append('Да' if value == '1' else 'Нет')
+
             print(situation_vector)
             decision = interpret_situation(situation_vector, rules_df)
             print("Решение:", decision)
-
 
 
 if __name__ == "__main__":
