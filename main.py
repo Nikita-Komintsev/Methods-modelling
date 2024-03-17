@@ -30,21 +30,24 @@ def interpret_situation(situation_vector, rules_df):
 
 
 def main():
-    rules_file_path = "rules_table.xlsx"
+    rules_file_path = "rules_table_2.xlsx"
     rules_df = load_rules_table(rules_file_path)
     if rules_df is not None:
         while True:
-            situation_vector = input("Введите ситуационный вектор (0, 1 через пробел): ").split()
-            if len(situation_vector) != len(rules_df.columns) - 1:
-                print("Неверное количество элементов в векторе.")
-                continue
-            if not all(element in ['0', '1'] for element in situation_vector):
-                print("Неверные значения в векторе. Пожалуйста, введите только 0 или 1.")
-                continue
-            situation_vector = ['Да' if value == '1' else 'Нет' for value in situation_vector]
+            situation_vector = []
+            for column in rules_df.columns[1:]:  # Пропускаем первый столбец (Решения)
+                while True:
+                    value = input(f"{column}: ")
+                    if value not in ['0', '1']:
+                        print("Неверное значение. Пожалуйста, введите только 0 или 1.")
+                        continue
+                    else:
+                        break  # Выход из цикла запроса значения
+                situation_vector.append('Да' if value == '1' else 'Нет')
             print(situation_vector)
             decision = interpret_situation(situation_vector, rules_df)
             print("Решение:", decision)
+
 
 
 if __name__ == "__main__":
