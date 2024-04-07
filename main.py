@@ -44,8 +44,8 @@ def main():
                         print(f"Неверное значение. Пожалуйста, введите одно из следующих: {', '.join(value_options)}")
                         continue
                     else:
-                        situation_vector.append('Да' if value == '1' else 'Нет' if value == '0' else value)
-                        break  # Выход из цикла запроса значения
+                        situation_vector.append('1' if value == '1' else '0' if value == '0' else value)
+                        break
 
             print(situation_vector)
             decision = interpret_situation(situation_vector, rules_df)
