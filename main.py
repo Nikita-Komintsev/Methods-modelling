@@ -13,29 +13,29 @@ def load_rules_table(file_path):
 def interpret_situation(situation_vector, rules_df):
     prev_decision = None
     for index, row in rules_df.iterrows():
-        conditions = row[1:]  # Условия в строке (все, кроме первого столбца)
-        decision = row.iloc[0]  # Решение (первый столбец)
-        if pd.isna(decision):  # Если решение NaN
-            decision = prev_decision  # Используем предыдущее значение решения
+        conditions = row[1:-1]
+        decision = row.iloc[0]
+        if pd.isna(decision):
+            decision = prev_decision
         else:
-            prev_decision = decision  # Сохраняем текущее значение решения
+            prev_decision = decision
         matched = True
         for i, condition in enumerate(conditions):
             if condition != '-' and str(condition) != str(situation_vector[i]):
                 matched = False
                 break
         if matched:
-            return decision
+            return "Рекомендуемый метод: "+decision
     return "Решение не найдено"
 
 
 def main():
-    rules_file_path = "rules_table_2.xlsx"
+    rules_file_path = "rules_table.xlsx"
     rules_df = load_rules_table(rules_file_path)
     if rules_df is not None:
         while True:
             situation_vector = []
-            for column in rules_df.columns[1:]:  # Пропускаем первый столбец (Решения)
+            for column in rules_df.columns[1:-1]:
                 col_name, value_options = column.split('(')
                 value_options = value_options.strip(')').split('/')
                 while True:
@@ -46,10 +46,10 @@ def main():
                     else:
                         situation_vector.append('1' if value == '1' else '0' if value == '0' else value)
                         break
+            print("Ситуационный вектор: "+str(situation_vector))
 
-            print(situation_vector)
             decision = interpret_situation(situation_vector, rules_df)
-            print("Решение:", decision)
+            print(decision)
 
 
 if __name__ == "__main__":
