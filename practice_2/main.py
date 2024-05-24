@@ -2,7 +2,7 @@ import json
 import time
 from tkinter import *
 from PIL import Image, ImageTk
-
+from itertools import zip_longest
 import numpy as np
 
 prev_x = None
@@ -71,6 +71,7 @@ def start():
         if i % 3 == 0:
             canvas.create_oval(x - 1.0, y + 1.0, x + 1.0, y - 1.0, outline="BLUE", fill="BLUE")
     UsualHit = settings['IsHit']
+    usual_arr = settings['CurrentDistance']
 
     settings = data['FuzzyMissile']
     curvesFuzzy = np.hstack(tuple(map(requestPointToNPPoint, settings['Trajectory'])))
@@ -81,6 +82,7 @@ def start():
         if i % 3 == 0:
             canvas.create_oval(x - 1.0, y + 1.0, x + 1.0, y - 1.0, outline="RED", fill="RED")
     FuzzyHit = settings['IsHit']
+    fuzzy_arr = settings['CurrentDistance']
 
     if UsualHit:
         hitUsual.config(text='True', bg='green')
@@ -100,10 +102,16 @@ def start():
     FuzzyFlag = False
     UsualFlag = False
 
-    for i in range(res_points - 5):
+    combined_arrays = zip_longest(usual_arr, fuzzy_arr)
+
+    for i, (item1, item2) in enumerate(combined_arrays):
         x1 = curvesBasicPoints[0][i]
         y1 = curvesBasicPoints[1][i]
         canvas.coords(plane_id, x1, y1)
+        if item1 is not None:
+            distanceUsual.config(text=f"{usual_arr[i]}")
+        if item2 is not None:
+            distanceFuzz.config(text=f"{fuzzy_arr[i]}")
         time.sleep(0.02)
         window.update()
 
@@ -122,13 +130,15 @@ def start():
         if not FuzzyFlag:
             FuzzyFlag = i == FuzzyP[1]
             if FuzzyFlag:
-                canvas.create_oval(x3 - 25.0, y3 + 25.0, x3 + 25.0, y3 - 25.0, outline="ORANGE", width=5)
+                distanceFuzz.config(text="0.00")
         if not UsualFlag:
             UsualFlag = i == UsualP[1]
             if UsualFlag:
-                canvas.create_oval(x2 - 25.0, y2 + 25.0, x2 + 25.0, y2 - 25.0, outline="ORANGE", width=5)
+                distanceUsual.config(text="0.00")
 
         if FuzzyFlag and UsualFlag:
+            # distanceFuzz.config(text="0.00")
+            # distanceUsual.config(text="0.00")
             break
 
 
@@ -136,6 +146,8 @@ def reset():
     canvas.delete("all")
     hitUsual.config(text='False', bg='red')
     hitFuzz.config(text='False', bg='red')
+    distanceUsual.config(text='N/A')
+    distanceFuzz.config(text='N/A')
     Plane.clear()
 
 
@@ -171,8 +183,6 @@ def plane():
     canvas.bind('<Button-1>', btn_1)
 
 
-
-
 if __name__ == "__main__":
     window = Tk()
     window.title("Модель наведения ЛА на цель")
@@ -204,11 +214,13 @@ if __name__ == "__main__":
     lbl_points = Label(main_frame, text="Дальность пути")
     lbl_points.grid(row=1, column=1, padx=5, pady=5)
     points = Entry(main_frame, width=10)
+    points.insert(END, "800")
     points.grid(row=1, column=2, padx=5, pady=5)
 
     lbl_velocity = Label(main_frame, text="Скорость ракеты")
     lbl_velocity.grid(row=2, column=1, padx=5, pady=5)
     velocity = Entry(main_frame, width=10)
+    velocity.insert(END, "7")
     velocity.grid(row=2, column=2, padx=5, pady=5)
 
     lbl_hitUsual = Label(main_frame, text="Метод пропорционального наведения")
@@ -218,12 +230,22 @@ if __name__ == "__main__":
     hitUsual = Label(main_frame, text="False")
     hitUsual.grid(row=0, column=5, padx=5, pady=5)
 
+    lbl_distanceUsual = Label(main_frame, text="Расстояние до цели")
+    lbl_distanceUsual.grid(row=0, column=6, padx=5, pady=5)
+    distanceUsual = Label(main_frame, text="N/A")
+    distanceUsual.grid(row=0, column=7, padx=5, pady=5)
+
     lbl_hitFuzz = Label(main_frame, text="Нечёткое пропорциональное наведение")
     lbl_hitFuzz.grid(row=1, column=3, padx=5, pady=5)
     lbl_color_hitFuzz = Label(main_frame, bg='red', width=5)
     lbl_color_hitFuzz.grid(row=1, column=4, padx=5, pady=5)
     hitFuzz = Label(main_frame, text="False")
     hitFuzz.grid(row=1, column=5, padx=5, pady=5)
+
+    lbl_distanceFuzz = Label(main_frame, text="Расстояние до цели")
+    lbl_distanceFuzz.grid(row=1, column=6, padx=5, pady=5)
+    distanceFuzz = Label(main_frame, text="N/A")
+    distanceFuzz.grid(row=1, column=7, padx=5, pady=5)
 
     canvas = Canvas(window, relief=RAISED, borderwidth=1, bg='WHITE')
     canvas.pack(side=RIGHT, padx=5)

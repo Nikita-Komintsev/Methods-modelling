@@ -41,7 +41,7 @@ class Fuzzy:
         maxMin = 'Max-Min'  # Метод максимума-минимума
         maxProd = 'Max-Prod'  # Метод максимума-произведения
 
-        print(m)
+        # print(m)
 
         # l - membership levels vector.
         if m == maxMin:
@@ -55,7 +55,7 @@ class Fuzzy:
         rightMax = 'Right-Max'  # Метод правого максимума
         centroid = 'Centroid'  # Метод центра тяжести
 
-        print(m)
+        # print(m)
 
         # u - aggregated membership function values.
         if m == rightMax:

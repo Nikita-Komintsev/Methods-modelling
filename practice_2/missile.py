@@ -22,6 +22,7 @@ class Missile:
         self.startVelocity = None
         self.hasHit = False
         self.controller = None
+        self.currentDistances = []
 
     def copy(self):
         return copy.deepcopy(self)
@@ -40,8 +41,8 @@ class Missile:
         nextSightLine = aircraftPoints[:, 1] - self._points[:, -1]
 
         self._currentDistance = np.linalg.norm(self.sightLine)
+        self.currentDistances.append(round(self._currentDistance, 2))
 
-        print(f"Дистанция до цели: {self._currentDistance}")
 
         if self._currentDistance <= 5:
             self.hasHit = True

@@ -48,11 +48,11 @@ class TrajectoryGenerator:
         # Генерация траектории ракеты с пропорциональным методом наведением
         ut = usual.trajectory(self._aircraftTrajectory)
         ut = list(map(npPointToResponsePoint, np.hsplit(ut, np.shape(ut)[1])))
-        self._response['UsualMissile'] = {'Trajectory': ut, 'IsHit': usual.hasHit}
+        self._response['UsualMissile'] = {'Trajectory': ut, 'IsHit': usual.hasHit, 'CurrentDistance': usual.currentDistances}
         # Генерация траектории ракеты с нечеткой модификацией пропорционального метода наведения
         ft = fuzzy.trajectory(self._aircraftTrajectory)
         ft = list(map(npPointToResponsePoint, np.hsplit(ft, np.shape(ft)[1])))
-        self._response['FuzzyMissile'] = {'Trajectory': ft, 'IsHit': fuzzy.hasHit}
+        self._response['FuzzyMissile'] = {'Trajectory': ft, 'IsHit': fuzzy.hasHit, 'CurrentDistance': fuzzy.currentDistances}
 
         self.response_s = json.dumps(self._response)
 
@@ -64,7 +64,7 @@ def calculateAircraftTrajectory(curvesBasisPoints, stepsCount):
         curve.evaluate_multi(np.linspace(0.0, 1.0, stepsCount // len(curves)))
 
     t = np.hstack(tuple(map(evaluate, curves)))
-    print(t)
+    # print(t)
     return t
 
 
@@ -79,9 +79,9 @@ def npPointToResponsePoint(p):
 def npPointsToCurves(curvesBasisPoints, maxPerCurvePointsCount):
     if curvesBasisPoints.size == 0:
         return []
-    print(curvesBasisPoints)
+    # print(curvesBasisPoints)
     result = [Curve.from_nodes(curvesBasisPoints[:, :maxPerCurvePointsCount])]
     result.extend(npPointsToCurves(curvesBasisPoints[:, maxPerCurvePointsCount - 1:],
                                    maxPerCurvePointsCount))
-    print(result)
+    # print(result)
     return result
