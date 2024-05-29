@@ -2,15 +2,6 @@ import copy
 
 import numpy as np
 
-# Функция для вычисления угла между двумя векторами
-def bearing(point1, point2):
-    delta = point2 - point1
-    angle = np.arctan2(delta[1], delta[0])
-    bearing = np.degrees(angle)
-    if bearing < 0:
-        bearing += 360
-    return bearing
-
 def angle(v):
     return np.arctan2(v[1], v[0])
 
@@ -52,6 +43,7 @@ class Missile:
         self.controller = None
         self.currentDistances = []
         self.currentBearings = []
+        self.angularVelocities = []  # Для хранения угловых скоростей линии визирования
 
     def copy(self):
         return copy.deepcopy(self)
@@ -73,13 +65,20 @@ class Missile:
         self._currentDistance = np.linalg.norm(self.sightLine)
         self.currentDistances.append(round(self._currentDistance, 2))
 
-        # Calculate the bearing and add to the list
-        longitudinal_axis = self._velocity  # Current velocity vector represents the longitudinal axis
+        # Пеленг
+        longitudinal_axis = self._velocity
         sight_line_vector = self.sightLine
 
-        # Calculate the bearing angle
         bearing_angle = calc_bearing(longitudinal_axis, sight_line_vector)
         self.currentBearings.append(round(bearing_angle, 2))  # Append the calculated bearing
+
+        # Угловая скорость
+        if len(self.currentBearings) > 1:
+            angular_velocity = (self.currentBearings[-1] - self.currentBearings[
+                -2]) / 1
+            self.angularVelocities.append(round(angular_velocity, 2))
+        else:
+            self.angularVelocities.append(0)
 
         if self._currentDistance <= 5:
             self.hasHit = True

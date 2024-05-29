@@ -86,6 +86,7 @@ def start():
     UsualHit = settings['IsHit']
     usual_arr = settings['CurrentDistance']
     usual_bearings = settings['CurrentBearing']
+    usual_angular_velocities = settings['AngularVelocity']
 
     settings = data['FuzzyMissile']
     curvesFuzzy = np.hstack(tuple(map(requestPointToNPPoint, settings['Trajectory'])))
@@ -98,6 +99,7 @@ def start():
     FuzzyHit = settings['IsHit']
     fuzzy_arr = settings['CurrentDistance']
     fuzzy_bearings = settings['CurrentBearing']
+    fuzzy_angular_velocities = settings['AngularVelocity']
 
     if UsualHit:
         hitUsual.config(text='True', bg='green')
@@ -120,20 +122,22 @@ def start():
     # print(usual_bearings)
     # print(fuzzy_bearings)
 
-    combined_arrays = zip_longest(usual_arr, fuzzy_arr, usual_bearings, fuzzy_bearings)
+    combined_arrays = zip_longest(usual_arr, fuzzy_arr, usual_bearings, fuzzy_bearings, usual_angular_velocities, fuzzy_angular_velocities)
     usual_line_id = None
     fuzzy_line_id = None
 
-    for i, (dist1, dist2, bearing1, bearing2) in enumerate(combined_arrays):
+    for i, (dist1, dist2, bearing1, bearing2, angVel1, angVel2) in enumerate(combined_arrays):
         x1 = curvesBasicPoints[0][i]
         y1 = curvesBasicPoints[1][i]
         canvas.coords(plane_id, x1, y1)
         if dist1 is not None:
             distanceUsual.config(text=f"{usual_arr[i]}")
             bearingUsual.config(text=f"{bearing1}°")
+            # usualAngularVelocities.config(text=f"{angVel1}")
         if dist2 is not None:
             distanceFuzz.config(text=f"{fuzzy_arr[i]}")
             bearingFuzz.config(text=f"{bearing2}°")
+            # fuzzAngularVelocities.config(text=f"{angVel2}")
         time.sleep(0.02)
         window.update()
 
@@ -237,7 +241,7 @@ if __name__ == "__main__":
     btn_rocket = Button(main_frame, text="Ракета", command=rocket, image=img_rocket)
     btn_rocket.grid(row=2, column=0)
 
-    lbl_points = Label(main_frame, text="Дальность пути")
+    lbl_points = Label(main_frame, text="Длина траектории")
     lbl_points.grid(row=1, column=1, padx=5, pady=5)
     points = Entry(main_frame, width=10)
     points.insert(END, "800")
@@ -263,10 +267,16 @@ if __name__ == "__main__":
     distanceUsual = Label(main_frame, text="N/A")
     distanceUsual.grid(row=1, column=6, padx=5, pady=5)
 
-    bearingUsualLabel = Label(main_frame, text="Пеленг")  # Add bearing label
-    bearingUsualLabel.grid(row=0, column=7)
+    bearingLabel = Label(main_frame, text="Пеленг")  # Add bearing label
+    bearingLabel.grid(row=0, column=7)
     bearingUsual = Label(main_frame, text="0.00°")
     bearingUsual.grid(row=1, column=7, padx=5, pady=5)
+
+    # angularVelocitiesLabel = Label(main_frame, text="Угловая скорость")
+    # angularVelocitiesLabel.grid(row=0, column=8, padx=5, pady=5)
+
+    # usualAngularVelocities = Label(main_frame, text="N/A")
+    # usualAngularVelocities.grid(row=1, column=8, padx=5, pady=5)
 
     lbl_hitFuzz = Label(main_frame, text="Нечёткое пропорциональное наведение")
     lbl_hitFuzz.grid(row=2, column=3, padx=5, pady=5)
@@ -280,6 +290,9 @@ if __name__ == "__main__":
 
     bearingFuzz = Label(main_frame, text="0.00°")
     bearingFuzz.grid(row=2, column=7, padx=5, pady=5)
+
+    # fuzzAngularVelocities = Label(main_frame, text="N/A")
+    # fuzzAngularVelocities.grid(row=2, column=8, padx=5, pady=5)
 
     canvas = Canvas(window, relief=RAISED, borderwidth=1, bg='WHITE')
     canvas.pack(side=RIGHT, padx=5)

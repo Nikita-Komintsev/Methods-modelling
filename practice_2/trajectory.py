@@ -51,14 +51,16 @@ class TrajectoryGenerator:
         self._response['UsualMissile'] = {'Trajectory': ut,
                                           'IsHit': usual.hasHit,
                                           'CurrentDistance': usual.currentDistances,
-                                          'CurrentBearing': usual.currentBearings}
+                                          'CurrentBearing': usual.currentBearings,
+                                          'AngularVelocity': usual.angularVelocities}
         # Генерация траектории ракеты с нечеткой модификацией пропорционального метода наведения
         ft = fuzzy.trajectory(self._aircraftTrajectory)
         ft = list(map(npPointToResponsePoint, np.hsplit(ft, np.shape(ft)[1])))
         self._response['FuzzyMissile'] = {'Trajectory': ft,
                                           'IsHit': fuzzy.hasHit,
                                           'CurrentDistance': fuzzy.currentDistances,
-                                          'CurrentBearing': fuzzy.currentBearings}
+                                          'CurrentBearing': fuzzy.currentBearings,
+                                          'AngularVelocity': fuzzy.angularVelocities}
 
         self.response_s = json.dumps(self._response)
 
