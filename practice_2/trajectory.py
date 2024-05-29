@@ -48,11 +48,17 @@ class TrajectoryGenerator:
         # Генерация траектории ракеты с пропорциональным методом наведением
         ut = usual.trajectory(self._aircraftTrajectory)
         ut = list(map(npPointToResponsePoint, np.hsplit(ut, np.shape(ut)[1])))
-        self._response['UsualMissile'] = {'Trajectory': ut, 'IsHit': usual.hasHit, 'CurrentDistance': usual.currentDistances}
+        self._response['UsualMissile'] = {'Trajectory': ut,
+                                          'IsHit': usual.hasHit,
+                                          'CurrentDistance': usual.currentDistances,
+                                          'CurrentBearing': usual.currentBearings}
         # Генерация траектории ракеты с нечеткой модификацией пропорционального метода наведения
         ft = fuzzy.trajectory(self._aircraftTrajectory)
         ft = list(map(npPointToResponsePoint, np.hsplit(ft, np.shape(ft)[1])))
-        self._response['FuzzyMissile'] = {'Trajectory': ft, 'IsHit': fuzzy.hasHit, 'CurrentDistance': fuzzy.currentDistances}
+        self._response['FuzzyMissile'] = {'Trajectory': ft,
+                                          'IsHit': fuzzy.hasHit,
+                                          'CurrentDistance': fuzzy.currentDistances,
+                                          'CurrentBearing': fuzzy.currentBearings}
 
         self.response_s = json.dumps(self._response)
 

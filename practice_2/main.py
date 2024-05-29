@@ -21,6 +21,19 @@ ImitationResponse = ''
 def requestPointToNPPoint(p):
     return np.array([[p['x']], [p['y']]], np.float64)
 
+def draw_sight_line(canvas, missile_pos, target_pos, line_id=None, color="black"):
+    """
+    Draws a sight line from missile position to target position on the canvas.
+    If line_id is provided, it will update the existing line, otherwise it will create a new line.
+    """
+    x1, y1 = missile_pos
+    x2, y2 = target_pos
+    if line_id is not None:
+        canvas.coords(line_id, x1, y1, x2, y2)
+        return line_id
+    else:
+        return canvas.create_line(x1, y1, x2, y2, fill=color, dash=(4, 4))
+
 
 def start():
     global res_points
@@ -72,6 +85,7 @@ def start():
             canvas.create_oval(x - 1.0, y + 1.0, x + 1.0, y - 1.0, outline="BLUE", fill="BLUE")
     UsualHit = settings['IsHit']
     usual_arr = settings['CurrentDistance']
+    usual_bearings = settings['CurrentBearing']
 
     settings = data['FuzzyMissile']
     curvesFuzzy = np.hstack(tuple(map(requestPointToNPPoint, settings['Trajectory'])))
@@ -83,6 +97,7 @@ def start():
             canvas.create_oval(x - 1.0, y + 1.0, x + 1.0, y - 1.0, outline="RED", fill="RED")
     FuzzyHit = settings['IsHit']
     fuzzy_arr = settings['CurrentDistance']
+    fuzzy_bearings = settings['CurrentBearing']
 
     if UsualHit:
         hitUsual.config(text='True', bg='green')
@@ -102,16 +117,23 @@ def start():
     FuzzyFlag = False
     UsualFlag = False
 
-    combined_arrays = zip_longest(usual_arr, fuzzy_arr)
+    # print(usual_bearings)
+    # print(fuzzy_bearings)
 
-    for i, (item1, item2) in enumerate(combined_arrays):
+    combined_arrays = zip_longest(usual_arr, fuzzy_arr, usual_bearings, fuzzy_bearings)
+    usual_line_id = None
+    fuzzy_line_id = None
+
+    for i, (dist1, dist2, bearing1, bearing2) in enumerate(combined_arrays):
         x1 = curvesBasicPoints[0][i]
         y1 = curvesBasicPoints[1][i]
         canvas.coords(plane_id, x1, y1)
-        if item1 is not None:
+        if dist1 is not None:
             distanceUsual.config(text=f"{usual_arr[i]}")
-        if item2 is not None:
+            bearingUsual.config(text=f"{bearing1}°")
+        if dist2 is not None:
             distanceFuzz.config(text=f"{fuzzy_arr[i]}")
+            bearingFuzz.config(text=f"{bearing2}°")
         time.sleep(0.02)
         window.update()
 
@@ -119,12 +141,14 @@ def start():
             x2 = curvesUsual[0][i]
             y2 = curvesUsual[1][i]
             canvas.coords(oval2, x2 - 5.0, y2 + 5.0, x2 + 5.0, y2 - 5.0)
+            usual_line_id = draw_sight_line(canvas, (x2, y2), (x1, y1), line_id=usual_line_id, color="black")
             window.update()
 
         if i < FuzzyP[1]:
             x3 = curvesFuzzy[0][i]
             y3 = curvesFuzzy[1][i]
             canvas.coords(oval3, x3 - 5.0, y3 + 5.0, x3 + 5.0, y3 - 5.0)
+            fuzzy_line_id = draw_sight_line(canvas, (x3, y3), (x1, y1), line_id=fuzzy_line_id, color="black")
             window.update()
 
         if not FuzzyFlag:
@@ -148,6 +172,8 @@ def reset():
     hitFuzz.config(text='False', bg='red')
     distanceUsual.config(text='N/A')
     distanceFuzz.config(text='N/A')
+    bearingUsual.config(text="0.00°")
+    bearingFuzz.config(text="0.00°")
     Plane.clear()
 
 
@@ -224,28 +250,36 @@ if __name__ == "__main__":
     velocity.grid(row=2, column=2, padx=5, pady=5)
 
     lbl_hitUsual = Label(main_frame, text="Метод пропорционального наведения")
-    lbl_hitUsual.grid(row=0, column=3, padx=5, pady=5)
+    lbl_hitUsual.grid(row=1, column=3, padx=5, pady=5)
     lbl_color_hitUsual = Label(main_frame, bg='blue', width=5)
-    lbl_color_hitUsual.grid(row=0, column=4, padx=5, pady=5)
+    lbl_color_hitUsual.grid(row=1, column=4, padx=5, pady=5)
     hitUsual = Label(main_frame, text="False")
-    hitUsual.grid(row=0, column=5, padx=5, pady=5)
+    hitUsual.grid(row=1, column=5, padx=5, pady=5)
 
+    lnl_hit = Label(main_frame, text="Попадание")
+    lnl_hit.grid(row=0, column=5, padx=5, pady=5)
     lbl_distanceUsual = Label(main_frame, text="Расстояние до цели")
     lbl_distanceUsual.grid(row=0, column=6, padx=5, pady=5)
     distanceUsual = Label(main_frame, text="N/A")
-    distanceUsual.grid(row=0, column=7, padx=5, pady=5)
+    distanceUsual.grid(row=1, column=6, padx=5, pady=5)
+
+    bearingUsualLabel = Label(main_frame, text="Пеленг")  # Add bearing label
+    bearingUsualLabel.grid(row=0, column=7)
+    bearingUsual = Label(main_frame, text="0.00°")
+    bearingUsual.grid(row=1, column=7, padx=5, pady=5)
 
     lbl_hitFuzz = Label(main_frame, text="Нечёткое пропорциональное наведение")
-    lbl_hitFuzz.grid(row=1, column=3, padx=5, pady=5)
+    lbl_hitFuzz.grid(row=2, column=3, padx=5, pady=5)
     lbl_color_hitFuzz = Label(main_frame, bg='red', width=5)
-    lbl_color_hitFuzz.grid(row=1, column=4, padx=5, pady=5)
+    lbl_color_hitFuzz.grid(row=2, column=4, padx=5, pady=5)
     hitFuzz = Label(main_frame, text="False")
-    hitFuzz.grid(row=1, column=5, padx=5, pady=5)
+    hitFuzz.grid(row=2, column=5, padx=5, pady=5)
 
-    lbl_distanceFuzz = Label(main_frame, text="Расстояние до цели")
-    lbl_distanceFuzz.grid(row=1, column=6, padx=5, pady=5)
     distanceFuzz = Label(main_frame, text="N/A")
-    distanceFuzz.grid(row=1, column=7, padx=5, pady=5)
+    distanceFuzz.grid(row=2, column=6, padx=5, pady=5)
+
+    bearingFuzz = Label(main_frame, text="0.00°")
+    bearingFuzz.grid(row=2, column=7, padx=5, pady=5)
 
     canvas = Canvas(window, relief=RAISED, borderwidth=1, bg='WHITE')
     canvas.pack(side=RIGHT, padx=5)
