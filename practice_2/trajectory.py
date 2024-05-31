@@ -5,7 +5,7 @@ from bezier import Curve
 from numpy import linalg
 
 import controllers
-import missile
+import rocket
 
 
 def unitVector(v):
@@ -42,7 +42,7 @@ class TrajectoryGenerator:
 
         # Задание параметров ракет
         settings = self._request['Missiles']
-        usual = missile.Missile()
+        usual = rocket.Missile()
         usual.stepsCount = self._stepsCount
         usual.launchPoint = requestPointToNPPoint(settings['LaunchPoint'])
         direction = requestPointToNPPoint(settings['Direction']) - usual.launchPoint
