@@ -66,6 +66,22 @@ def start():
     import trajectory
     tr = trajectory.TrajectoryGenerator(ImitationRequest)
     ImitationResponse = tr.response_s
+
+
+    # speed_p.delete(0, 'end')
+    # speed_p.insert(0, int(tr.p_vel[0]))
+    # pos_p.delete(0, 'end')
+    # pos_p.insert(0, "x:" + str(int(tr.p_launch[0])) + " y:" + str(int(tr.p_launch[1])))
+
+    # speed_a.delete(0, 'end')
+    # speed_a.insert(0, int(tr.a_vel))
+    print('Скорость цели: ',int(tr.a_vel))
+    print('Положение цели x: '+ str(int(tr.a_launch[0])) + " y:" + str(int(tr.a_launch[1])))
+    print('Скорость ракеты: ', int(tr.p_vel[0]))
+    print('Положение ракеты x: ' + str(int(tr.p_launch[0])) + " y:" + str(int(tr.p_launch[1])))
+    # pos_a.delete(0, 'end')
+    # pos_a.insert(0, "x:" + str(int(tr.a_launch[0])) + " y:" + str(int(tr.a_launch[1])))
+
     data = json.loads(ImitationResponse)
 
     curvesBasicPoints = np.hstack(tuple(map(requestPointToNPPoint, data['AircraftTrajectory'])))

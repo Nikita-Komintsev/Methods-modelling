@@ -1,7 +1,7 @@
 import numpy as np
 import skfuzzy as fz
 
-_defaultAngleLimit = np.pi / 36
+_defaultAngleLimit = np.pi / 18
 
 
 class Proportional:
